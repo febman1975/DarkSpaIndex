@@ -1,0 +1,32 @@
+{
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/downloads/index.php",
+      "headers": [
+        { "key": "Content-Type", "value": "application/x-httpd-php; charset=utf-8" },
+        { "key": "Content-Disposition", "value": "attachment; filename=\"index.php\"" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/go",
+      "destination": "/api/gate"
+    },
+    {
+      "source": "/human",
+      "destination": "/human/index.html"
+    },
+    {
+      "source": "/bot",
+      "destination": "/bot/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
+  ]
+}
