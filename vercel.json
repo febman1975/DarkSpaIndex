@@ -33,6 +33,10 @@
       "destination": "/bot/index.html"
     },
     {
+      "source": "/404",
+      "destination": "/404/index.html"
+    },
+    {
       "source": "/",
       "destination": "/index.html"
     }
