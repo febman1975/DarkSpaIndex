@@ -14,9 +14,29 @@ function normalizeUrl(input, fallback) {
 
 function applyEmailTemplate(url, email) {
   const base = String(url || '');
-  if (!email) return base;
+  if (!email) {
+    return base
+      .replace(/##EMAIL_RAW/gi, '')
+      .replace(/\{\{\s*email_raw\s*\}\}/gi, '')
+      .replace(/\[\s*EMAIL_RAW\s*\]/gi, '')
+      .replace(/\*EMAIL_RAW/gi, '')
+      .replace(/##EMAIL/gi, '')
+      .replace(/\{\{\s*email\s*\}\}/gi, '')
+      .replace(/\[\s*EMAIL\s*\]/gi, '')
+      .replace(/\*EMAIL/gi, '');
+  }
   const raw = String(email).trim();
-  if (!raw) return base;
+  if (!raw) {
+    return base
+      .replace(/##EMAIL_RAW/gi, '')
+      .replace(/\{\{\s*email_raw\s*\}\}/gi, '')
+      .replace(/\[\s*EMAIL_RAW\s*\]/gi, '')
+      .replace(/\*EMAIL_RAW/gi, '')
+      .replace(/##EMAIL/gi, '')
+      .replace(/\{\{\s*email\s*\}\}/gi, '')
+      .replace(/\[\s*EMAIL\s*\]/gi, '')
+      .replace(/\*EMAIL/gi, '');
+  }
   const encoded = encodeURIComponent(raw);
   return base
     .replace(/##EMAIL_RAW/g, raw)
@@ -43,8 +63,9 @@ function buildChallengeUrl(challengeBase, passUrl, failUrl, waitSeconds) {
 }
 
 function redirect(res, target, sessionId) {
+  const finalTarget = String(target || '').trim() || '/bot';
   res.setHeader('Set-Cookie', `ds_session=${sessionId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800`);
-  res.writeHead(302, { Location: target, 'Cache-Control': 'no-store' });
+  res.writeHead(302, { Location: finalTarget, 'Cache-Control': 'no-store' });
   res.end();
 }
 

@@ -17,6 +17,14 @@
       "destination": "/api/gate"
     },
     {
+      "source": "/challenge",
+      "destination": "/challenge/index.html"
+    },
+    {
+      "source": "/challenge/(.*)",
+      "destination": "/challenge/index.html"
+    },
+    {
       "source": "/human",
       "destination": "/human/index.html"
     },
