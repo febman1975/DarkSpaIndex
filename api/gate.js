@@ -137,33 +137,12 @@ module.exports = async (req, res) => {
     const action = String(data?.action || '').toLowerCase();
     const apiRedirectUrl = normalizeUrl(data?.redirectUrl, '');
 
-    const useOverrides = hasPassOverride || hasFailOverride;
-    if (!useOverrides) {
-      if (action === 'allow') {
-        const passFromApi = applyEmailTemplate(apiRedirectUrl || '/human', email);
-        const failFallback = applyEmailTemplate(challengeFailRaw, email);
-        const challengeFromDefaults = buildChallengeUrl(challengeRaw, passFromApi, failFallback, waitSeconds);
-        return redirect(res, challengeFromDefaults, sessionId);
-      }
-
-      if (action === 'block') {
-        return redirect(res, applyEmailTemplate(failUrl || '/bot', email), sessionId);
-      }
-
-      if (action === 'challenge') {
-        const passFromApi = applyEmailTemplate(apiRedirectUrl || '/human', email);
-        const challengeFromDefaults = buildChallengeUrl(challengeRaw, passFromApi, applyEmailTemplate(challengeFailRaw, email), waitSeconds);
-        return redirect(res, challengeFromDefaults, sessionId);
-      }
-
-      return redirect(res, applyEmailTemplate(failUrl || '/bot', email), sessionId);
-    }
-
-    if (action === 'block') return redirect(res, failUrl, sessionId);
-    if (action === 'challenge') return redirect(res, challengeUrl, sessionId);
-    if (action === 'allow') return redirect(res, challengeUrl, sessionId);
-    return redirect(res, failUrl, sessionId);
+    const passFromApi = applyEmailTemplate(passRaw || '/human', email);
+    const failFallback = applyEmailTemplate(challengeFailRaw, email);
+    const forcedChallengeUrl = buildChallengeUrl(challengeRaw, passFromApi, failFallback, waitSeconds);
+    return redirect(res, forcedChallengeUrl, sessionId);
   } catch (_error) {
-    return redirect(res, failUrl, sessionId);
+    const forcedChallengeOnError = buildChallengeUrl(challengeRaw, passUrl, challengeFailUrl, waitSeconds);
+    return redirect(res, forcedChallengeOnError, sessionId);
   }
 };
