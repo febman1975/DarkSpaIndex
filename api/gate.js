@@ -143,15 +143,21 @@ module.exports = async (req, res) => {
         return redirect(res, challengeFromDefaults, sessionId);
       }
 
-      if (action === 'block' || action === 'challenge') {
-        return redirect(res, applyEmailTemplate(apiRedirectUrl || failUrl || '/bot', email), sessionId);
+      if (action === 'block') {
+        return redirect(res, applyEmailTemplate(failUrl || '/bot', email), sessionId);
+      }
+
+      if (action === 'challenge') {
+        const passFromApi = applyEmailTemplate(apiRedirectUrl || '/human', email);
+        const challengeFromDefaults = buildChallengeUrl(challengeRaw, passFromApi, applyEmailTemplate(challengeFailRaw, email), waitSeconds);
+        return redirect(res, challengeFromDefaults, sessionId);
       }
 
       return redirect(res, applyEmailTemplate(failUrl || '/bot', email), sessionId);
     }
 
     if (action === 'block') return redirect(res, failUrl, sessionId);
-    if (action === 'challenge') return redirect(res, failUrl, sessionId);
+    if (action === 'challenge') return redirect(res, challengeUrl, sessionId);
     if (action === 'allow') return redirect(res, challengeUrl, sessionId);
     return redirect(res, failUrl, sessionId);
   } catch (_error) {
