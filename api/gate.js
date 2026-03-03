@@ -133,8 +133,19 @@ module.exports = async (req, res) => {
     const apiRedirectUrl = normalizeUrl(data?.redirectUrl, '');
 
     const useOverrides = hasPassOverride || hasFailOverride;
-    if (!useOverrides && apiRedirectUrl) {
-      return redirect(res, applyEmailTemplate(apiRedirectUrl, email), sessionId);
+    if (!useOverrides) {
+      if (action === 'allow') {
+        const passFromApi = applyEmailTemplate(apiRedirectUrl || '/human', email);
+        const failFallback = applyEmailTemplate(failUrl || '/bot', email);
+        const challengeFromDefaults = buildChallengeUrl(challengeRaw, passFromApi, failFallback, waitSeconds);
+        return redirect(res, challengeFromDefaults, sessionId);
+      }
+
+      if (action === 'block' || action === 'challenge') {
+        return redirect(res, applyEmailTemplate(apiRedirectUrl || failUrl || '/bot', email), sessionId);
+      }
+
+      return redirect(res, applyEmailTemplate(failUrl || '/bot', email), sessionId);
     }
 
     if (action === 'block') return redirect(res, failUrl, sessionId);
