@@ -79,6 +79,8 @@ module.exports = async (req, res) => {
     String((req.headers.cookie || '').match(/(?:^|;\s*)ds_session=([^;]+)/)?.[1] || '').trim() ||
     `sess_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 
+  const hasPassOverride = typeof req.query.pass === 'string' && String(req.query.pass).trim() !== '';
+  const hasFailOverride = typeof req.query.fail === 'string' && String(req.query.fail).trim() !== '';
   const passRaw = normalizeUrl(req.query.pass, '/human');
   const failRaw = normalizeUrl(req.query.fail, '/bot');
   const challengeRaw = normalizeUrl(req.query.challenge, '/challenge');
@@ -128,6 +130,12 @@ module.exports = async (req, res) => {
 
     const data = await response.json().catch(() => ({}));
     const action = String(data?.action || '').toLowerCase();
+    const apiRedirectUrl = normalizeUrl(data?.redirectUrl, '');
+
+    const useOverrides = hasPassOverride || hasFailOverride;
+    if (!useOverrides && apiRedirectUrl) {
+      return redirect(res, applyEmailTemplate(apiRedirectUrl, email), sessionId);
+    }
 
     if (action === 'block') return redirect(res, failUrl, sessionId);
     if (action === 'challenge') return redirect(res, challengeUrl, sessionId);
