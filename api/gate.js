@@ -130,7 +130,7 @@ module.exports = async (req, res) => {
     const action = String(data?.action || '').toLowerCase();
 
     if (action === 'block') return redirect(res, failUrl, sessionId);
-    if (action === 'challenge') return redirect(res, failUrl, sessionId);
+    if (action === 'challenge') return redirect(res, challengeUrl, sessionId);
     if (action === 'allow') return redirect(res, challengeUrl, sessionId);
     return redirect(res, failUrl, sessionId);
   } catch (_error) {
